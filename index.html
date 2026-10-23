@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Omar’s Editing Experience</title>
+<meta name="description" content="Omar, freelance video editor: documentaries, YouTube long-form and short-form content edited in DaVinci Resolve.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet">
+<style>
+/* ================================================================
+   COLORS: a "teal & orange" grade. Edit the hex values to rebrand.
+   ================================================================ */
+:root {
+  color-scheme: light;
+  --bg: #EDF0F3;
+  --surface: #FFFFFF;
+  --surface-2: #E1E6EC;
+  --ink: #18202E;
+  --ink-soft: #4A5568;
+  --line: #C9D1DB;
+  --teal: #1F857C;
+  --amber: #C9781A;
+  --clip-1: #2E9C92;
+  --clip-2: #D98A2B;
+  --clip-3: #6C7FA8;
+  --clip-4: #A85B6E;
+  --shadow: 0 18px 40px -22px rgba(24, 32, 46, .35);
+
+  --display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --serif: "Newsreader", "Iowan Old Style", Georgia, "Times New Roman", serif;
+
+  --wrap: 1180px;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #151A24;
+    --surface: #1D2432;
+    --surface-2: #262F40;
+    --ink: #ECE7DD;
+    --ink-soft: #A7AEBB;
+    --line: #333D50;
+    --teal: #4FB8AD;
+    --amber: #F2A541;
+    --clip-1: #3A9E94;
+    --clip-2: #E39A3B;
+    --clip-3: #6F82AD;
+    --clip-4: #B36A7C;
+    --shadow: 0 24px 50px -24px rgba(0, 0, 0, .7);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #151A24; --surface: #1D2432; --surface-2: #262F40;
+  --ink: #ECE7DD; --ink-soft: #A7AEBB; --line: #333D50;
+  --teal: #4FB8AD; --amber: #F2A541;
+  --clip-1: #3A9E94; --clip-2: #E39A3B; --clip-3: #6F82AD; --clip-4: #B36A7C;
+  --shadow: 0 24px 50px -24px rgba(0, 0, 0, .7);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: calc(env(safe-area-inset-top, 0px) + 80px); }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 1.125rem;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+body::before {
+  content: ""; position: fixed; inset: 0 0 auto;
+  height: env(safe-area-inset-top, 0px); z-index: 60;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(12px);
+}
+img { max-width: 100%; display: block; }
+a { color: inherit; }
+:focus-visible { outline: 3px solid var(--amber); outline-offset: 3px; border-radius: 4px; }
+.wrap { width: min(var(--wrap), 100% - 2.5rem); margin-inline: auto; }
+
+h1, h2, h3 { font-family: var(--display); line-height: 1.05; margin: 0; letter-spacing: -0.02em; }
+h2 { font-size: clamp(2.2rem, 5vw, 3.6rem); font-weight: 800; max-width: 16ch; }
+h3 { font-size: 1.3rem; font-weight: 600; letter-spacing: -0.01em; line-height: 1.2; }
+p { margin: 0 0 1em; max-width: 62ch; }
+
+/* ---------------- Header with scroll timecode ---------------- */
+.top {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 50;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+}
+.top-inner { display: flex; align-items: center; gap: 1.5rem; height: 64px; }
+.brand { font-family: var(--display); font-weight: 800; font-size: 1.05rem; text-decoration: none; white-space: nowrap; }
+.nav { display: flex; gap: 1.4rem; margin-left: auto; font-family: var(--display); font-size: .95rem; }
+.nav a { text-decoration: none; color: var(--ink-soft); }
+.nav a:hover { color: var(--ink); }
+.timecode {
+  font-family: var(--display); font-variant-numeric: tabular-nums; font-weight: 600;
+  font-size: .9rem; color: var(--amber);
+  padding: .25rem .6rem; border: 1px solid var(--line); border-radius: 6px;
+}
+.btn {
+  display: inline-flex; align-items: center; gap: .5rem;
+  font-family: var(--display); font-weight: 600; font-size: 1rem;
+  padding: .8rem 1.3rem; border-radius: 999px; text-decoration: none;
+  background: var(--teal); color: var(--bg); border: 0; cursor: pointer;
+  transition: transform .2s ease, background .2s ease;
+}
+.btn:hover { transform: translateY(-2px); background: var(--amber); }
+.btn.small { padding: .5rem 1rem; font-size: .9rem; }
+.ruler { position: relative; height: 4px; background: var(--surface-2); }
+.ruler-fill { position: absolute; inset: 0 auto 0 0; width: 0; background: linear-gradient(90deg, var(--teal), var(--amber)); }
+.ruler-head {
+  position: absolute; top: -5px; width: 2px; height: 14px; left: 0;
+  background: var(--amber); transform: translateX(-1px);
+}
+@media (max-width: 860px) { .nav { display: none; } .timecode { margin-left: auto; } }
+@media (max-width: 480px) { .top .btn { display: none; } }
+
+/* ---------------- Hero ---------------- */
+.hero { padding: clamp(3rem, 8vw, 6rem) 0 3rem; }
+.hero-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: clamp(2rem, 5vw, 4rem); align-items: center; }
+.hero h1 { font-size: clamp(2.8rem, 7.4vw, 6rem); font-weight: 800; letter-spacing: -0.035em; }
+.hero h1 .line { display: block; overflow: hidden; }
+.hero h1 .line span { display: inline-block; animation: rise .9s cubic-bezier(.2,.8,.2,1) both; }
+.hero h1 .line:nth-child(2) span { animation-delay: .12s; }
+.hero h1 .line:nth-child(3) span { animation-delay: .24s; }
+.hero .lede { font-size: 1.3rem; color: var(--ink-soft); margin: 1.6rem 0 2rem; max-width: 40ch; animation: fade 1s .5s both; }
+.hero-actions { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; animation: fade 1s .65s both; }
+.textlink { font-family: var(--display); font-weight: 600; text-decoration-thickness: 2px; text-underline-offset: 5px; text-decoration-color: var(--teal); }
+
+/* Viewer monitor with photo placeholder */
+.viewer {
+  position: relative; border-radius: 14px; overflow: hidden;
+  background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow);
+  animation: fade 1.1s .3s both;
+}
+.viewer-screen { aspect-ratio: 4 / 5; position: relative; background: var(--surface-2); }
+.viewer-screen img { width: 100%; height: 100%; object-fit: cover; }
+.photo-placeholder {
+  position: absolute; inset: 0; display: grid; place-items: center; text-align: center;
+  color: var(--ink-soft); font-family: var(--display); font-size: .95rem; padding: 2rem;
+  background:
+    linear-gradient(var(--line) 1px, transparent 1px) 0 0 / 33.33% 33.33%,
+    linear-gradient(90deg, var(--line) 1px, transparent 1px) 0 0 / 33.33% 33.33%;
+}
+.photo-placeholder svg { width: 56px; height: 56px; margin: 0 auto .8rem; opacity: .7; }
+.viewer-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: .7rem 1rem; font-family: var(--display); font-size: .85rem; color: var(--ink-soft);
+  font-variant-numeric: tabular-nums; border-top: 1px solid var(--line);
+}
+.rec { display: inline-flex; align-items: center; gap: .45rem; }
+.rec::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--amber); animation: blink 1.4s infinite; }
+
+/* Hero edit timeline (the one orchestrated load moment) */
+.edit {
+  margin-top: clamp(3rem, 6vw, 4.5rem);
+  border: 1px solid var(--line); border-radius: 14px; background: var(--surface);
+  padding: 1rem 1rem 1.1rem; position: relative; overflow: hidden;
+}
+.edit-head { display: flex; justify-content: space-between; font-family: var(--display); font-size: .85rem; color: var(--ink-soft); margin-bottom: .7rem; font-variant-numeric: tabular-nums; }
+.tracks { position: relative; display: grid; gap: 6px; }
+.track { display: grid; grid-template-columns: 2.6rem 1fr; gap: 8px; align-items: center; }
+.track-name { font-family: var(--display); font-size: .8rem; color: var(--ink-soft); font-weight: 600; }
+.lane { position: relative; height: 30px; background: var(--surface-2); border-radius: 5px; }
+.clip {
+  position: absolute; top: 3px; bottom: 3px; border-radius: 4px;
+  font-family: var(--display); font-size: .72rem; font-weight: 600; color: #fff;
+  padding: 0 .5rem; display: flex; align-items: center; white-space: nowrap; overflow: hidden;
+  animation: drop .7s cubic-bezier(.2,.8,.2,1) both;
+}
+.clip.c1 { background: var(--clip-1); } .clip.c2 { background: var(--clip-2); }
+.clip.c3 { background: var(--clip-3); } .clip.c4 { background: var(--clip-4); }
+.clip.wave {
+  background:
+    repeating-linear-gradient(90deg, transparent 0 3px, rgba(255,255,255,.35) 3px 4px),
+    var(--clip-3);
+}
+.playhead {
+  position: absolute; top: -4px; bottom: -4px; left: calc(2.6rem + 8px); width: 2px;
+  background: var(--amber); animation: sweep 9s 1.4s linear infinite;
+}
+.playhead::before { content: ""; position: absolute; top: -6px; left: -5px; border: 6px solid transparent; border-top-color: var(--amber); }
+
+/* ---------------- Sections ---------------- */
+section { padding: clamp(4.5rem, 10vw, 8rem) 0; }
+.section-head { display: flex; justify-content: space-between; align-items: end; gap: 2rem; flex-wrap: wrap; margin-bottom: 3rem; }
+.section-head p { color: var(--ink-soft); max-width: 44ch; margin: 0; }
+
+/* About */
+.about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem, 6vw, 5rem); }
+.about-body p:first-child { font-size: 1.4rem; line-height: 1.5; }
+.facts { display: grid; gap: 0; border-top: 1px solid var(--line); margin-top: 2rem; }
+.fact { display: grid; grid-template-columns: 9rem 1fr; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid var(--line); }
+.fact dt { font-family: var(--display); font-weight: 600; color: var(--ink-soft); font-size: .95rem; }
+.fact dd { margin: 0; }
+
+/* Work */
+.work { background: var(--surface); border-block: 1px solid var(--line); }
+.work-group + .work-group { margin-top: 4.5rem; }
+.work-group > h3 { font-size: 1.6rem; margin-bottom: .4rem; }
+.work-group > .sub { color: var(--ink-soft); margin-bottom: 1.8rem; }
+.grid-long { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr)); gap: 2rem 1.5rem; }
+.grid-short { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); gap: 1.5rem; }
+.tile { all: unset; display: block; cursor: pointer; border-radius: 12px; }
+.tile:focus-visible { outline: 3px solid var(--amber); outline-offset: 4px; }
+.thumb {
+  position: relative; border-radius: 12px; overflow: hidden; background: var(--surface-2);
+  aspect-ratio: 16 / 9; border: 1px solid var(--line);
+}
+.grid-short .thumb { aspect-ratio: 9 / 16; }
+.thumb img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s cubic-bezier(.2,.8,.2,1); }
+.tile:hover .thumb img { transform: scale(1.05); }
+.thumb-empty {
+  position: absolute; inset: 0; display: grid; place-items: center;
+  font-family: var(--display); font-size: .9rem; color: var(--ink-soft);
+  background:
+    repeating-linear-gradient(135deg, transparent 0 14px, color-mix(in srgb, var(--line) 55%, transparent) 14px 15px);
+}
+.play {
+  position: absolute; left: 50%; top: 50%; width: 64px; height: 64px; border-radius: 50%;
+  transform: translate(-50%, -50%) scale(.9);
+  background: color-mix(in srgb, var(--bg) 82%, transparent); backdrop-filter: blur(6px);
+  display: grid; place-items: center; transition: transform .3s ease, background .3s ease;
+}
+.play svg { width: 22px; height: 22px; margin-left: 3px; fill: var(--ink); }
+.tile:hover .play { transform: translate(-50%, -50%) scale(1); background: var(--amber); }
+.tile:hover .play svg { fill: #1A1A1A; }
+.tile-meta { padding: .9rem .2rem 0; }
+.tile-meta h4 { font-family: var(--display); font-weight: 600; font-size: 1.1rem; margin: 0 0 .25rem; line-height: 1.25; }
+.tile-meta p { font-size: .98rem; color: var(--ink-soft); margin: 0; }
+.duration {
+  position: absolute; right: .6rem; bottom: .6rem; font-family: var(--display); font-size: .78rem;
+  font-variant-numeric: tabular-nums; padding: .15rem .45rem; border-radius: 4px;
+  background: rgba(0,0,0,.72); color: #fff;
+}
+
+/* Services */
+.services-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 0 3rem; }
+.service { padding: 1.8rem 0; border-top: 1px solid var(--line); display: grid; grid-template-columns: 2.4rem 1fr; gap: 1rem; }
+.service-icon { width: 2.4rem; height: 2.4rem; border-radius: 8px; display: grid; place-items: center; background: var(--surface-2); color: var(--teal); }
+.service-icon svg { width: 20px; height: 20px; }
+.service h3 { margin-bottom: .5rem; }
+.service p { color: var(--ink-soft); margin: 0; font-size: 1.05rem; }
+.guarantee {
+  margin-top: 3rem; border-radius: 16px; padding: clamp(1.8rem, 4vw, 2.8rem);
+  background: var(--ink); color: var(--bg);
+  display: grid; grid-template-columns: 1fr auto; gap: 2rem; align-items: center;
+}
+.guarantee h3 { font-size: clamp(1.6rem, 3.4vw, 2.4rem); font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }
+.guarantee p { margin: .8rem 0 0; opacity: .8; }
+.rate { text-align: right; font-family: var(--display); }
+.rate strong { display: block; font-size: clamp(2.6rem, 6vw, 4rem); line-height: 1; color: var(--amber); }
+.rate span { opacity: .75; font-size: .95rem; }
+@media (max-width: 640px) { .guarantee { grid-template-columns: 1fr; } .rate { text-align: left; } }
+
+/* Toolkit */
+.tools { display: grid; grid-template-columns: 1.1fr .9fr; gap: clamp(2rem, 5vw, 4rem); }
+.resolve-pages { display: grid; grid-template-columns: repeat(3, 1fr); gap: .8rem; }
+.page {
+  border: 1px solid var(--line); border-radius: 10px; padding: 1rem; background: var(--surface);
+  transition: border-color .25s ease, transform .25s ease;
+}
+.page:hover { border-color: var(--teal); transform: translateY(-3px); }
+.page strong { display: block; font-family: var(--display); font-size: 1.05rem; }
+.page span { font-size: .92rem; color: var(--ink-soft); line-height: 1.4; display: block; margin-top: .25rem; }
+.chips { display: flex; flex-wrap: wrap; gap: .6rem; }
+.chip {
+  font-family: var(--display); font-size: .95rem; padding: .5rem .95rem;
+  border-radius: 999px; border: 1px solid var(--line); background: var(--surface);
+}
+.tools h3 { margin-bottom: 1.2rem; }
+@media (max-width: 560px) { .resolve-pages { grid-template-columns: repeat(2, 1fr); } }
+
+/* Experience: real chronological sequence, drawn as a timeline */
+.exp { position: relative; padding-left: 2rem; border-left: 2px solid var(--line); }
+.exp-fill { position: absolute; left: -2px; top: 0; width: 2px; height: 0; background: linear-gradient(var(--teal), var(--amber)); }
+.role { position: relative; padding: 0 0 2.6rem; }
+.role:last-child { padding-bottom: 0; }
+.role::before {
+  content: ""; position: absolute; left: calc(-2rem - 7px); top: .45rem;
+  width: 12px; height: 12px; border-radius: 50%; background: var(--bg); border: 2px solid var(--teal);
+}
+.role-years { font-family: var(--display); font-weight: 600; color: var(--amber); font-variant-numeric: tabular-nums; font-size: .95rem; }
+.role h3 { margin: .2rem 0 .5rem; font-size: 1.4rem; }
+.role p { color: var(--ink-soft); margin: 0; }
+.also { margin-top: 3.5rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 1.5rem; }
+.also-item { border: 1px solid var(--line); border-radius: 12px; padding: 1.4rem; background: var(--surface); }
+.also-item h3 { font-size: 1.15rem; margin-bottom: .4rem; }
+.also-item p { margin: 0; color: var(--ink-soft); font-size: 1rem; }
+.also-item .len { font-family: var(--display); font-size: .9rem; color: var(--teal); font-weight: 600; }
+
+/* Contact */
+.contact { text-align: left; }
+.contact h2 { font-size: clamp(2.6rem, 8vw, 6rem); max-width: 14ch; letter-spacing: -0.035em; }
+.contact p { color: var(--ink-soft); font-size: 1.25rem; margin: 1.4rem 0 2.2rem; }
+.contact .btn { font-size: 1.15rem; padding: 1.05rem 1.8rem; }
+footer { border-top: 1px solid var(--line); padding: 2rem 0; font-family: var(--display); font-size: .9rem; color: var(--ink-soft); }
+footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+
+/* ---------------- Pop-up player ---------------- */
+dialog.player {
+  width: min(1100px, 94vw); max-height: 92vh; padding: 0; border: 0; border-radius: 16px;
+  background: var(--surface); color: var(--ink); overflow: hidden; box-shadow: 0 40px 100px -20px rgba(0,0,0,.6);
+}
+dialog.player.vertical { width: min(420px, 92vw); }
+dialog.player::backdrop { background: rgba(8, 11, 17, .82); backdrop-filter: blur(6px); }
+dialog.player[open] { animation: pop .35s cubic-bezier(.2,.8,.2,1); }
+.player-frame { aspect-ratio: 16 / 9; background: #000; position: relative; }
+dialog.player.vertical .player-frame { aspect-ratio: 9 / 16; max-height: 78vh; margin-inline: auto; }
+.player-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.player-empty { position: absolute; inset: 0; display: grid; place-items: center; color: #ddd; font-family: var(--display); text-align: center; padding: 2rem; }
+.player-bar { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 1rem 1.2rem; }
+.player-bar h4 { font-family: var(--display); font-size: 1.1rem; margin: 0; }
+.player-bar p { margin: .15rem 0 0; color: var(--ink-soft); font-size: .95rem; }
+.player-actions { display: flex; gap: .6rem; flex-shrink: 0; }
+.icon-btn {
+  width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--line);
+  background: var(--surface-2); color: var(--ink); display: grid; place-items: center; cursor: pointer; text-decoration: none;
+}
+.icon-btn:hover { border-color: var(--amber); }
+.icon-btn svg { width: 18px; height: 18px; }
+
+/* ---------------- Scroll reveal ---------------- */
+.reveal { opacity: 0; transform: translateY(28px); transition: opacity .9s cubic-bezier(.2,.8,.2,1), transform .9s cubic-bezier(.2,.8,.2,1); }
+.reveal.in { opacity: 1; transform: none; }
+.stagger > .reveal:nth-child(2) { transition-delay: .08s; }
+.stagger > .reveal:nth-child(3) { transition-delay: .16s; }
+.stagger > .reveal:nth-child(4) { transition-delay: .24s; }
+.stagger > .reveal:nth-child(5) { transition-delay: .32s; }
+.stagger > .reveal:nth-child(6) { transition-delay: .4s; }
+
+@keyframes rise { from { transform: translateY(105%); } to { transform: none; } }
+@keyframes fade { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes drop { from { opacity: 0; transform: translateY(-14px) scaleX(.6); transform-origin: left; } to { opacity: 1; transform: none; } }
+@keyframes sweep { from { left: calc(2.6rem + 8px); } to { left: 100%; } }
+@keyframes blink { 50% { opacity: .25; } }
+@keyframes pop { from { opacity: 0; transform: scale(.94) translateY(12px); } to { opacity: 1; transform: none; } }
+
+@media (max-width: 900px) {
+  .hero-grid, .about-grid, .tools { grid-template-columns: 1fr; }
+  .viewer { max-width: 380px; }
+  .fact { grid-template-columns: 1fr; gap: .2rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  html { scroll-behavior: auto; }
+  .reveal { opacity: 1; transform: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ================= HEADER ================= -->
+<header class="top">
+  <div class="wrap top-inner">
+    <a class="brand" href="#top">Omar’s Editing Experience</a>
+    <nav class="nav" aria-label="Main">
+      <a href="#about">About</a>
+      <a href="#work">Work</a>
+      <a href="#services">Services</a>
+      <a href="#experience">Experience</a>
+    </nav>
+    <span class="timecode" id="timecode" aria-hidden="true">00:00:00:00</span>
+    <a class="btn small upwork-link" href="#" target="_blank" rel="noopener">Hire me on Upwork</a>
+  </div>
+  <div class="ruler" aria-hidden="true"><div class="ruler-fill" id="rulerFill"></div><div class="ruler-head" id="rulerHead"></div></div>
+</header>
+
+<main id="top">
+
+<!-- ================= HERO ================= -->
+<section class="hero" aria-labelledby="hero-title">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <h1 id="hero-title">
+          <span class="line"><span>I cut stories</span></span>
+          <span class="line"><span>people watch</span></span>
+          <span class="line"><span>to the end.</span></span>
+        </h1>
+        <p class="lede">I’m Omar, a video editor working with YouTube creators since 2020. Documentaries, long-form videos and short-form content, edited in DaVinci Resolve.</p>
+        <div class="hero-actions">
+          <a class="btn" href="#work">Watch my work</a>
+          <a class="textlink upwork-link" href="#" target="_blank" rel="noopener">Hire me on Upwork</a>
+        </div>
+      </div>
+
+      <figure class="viewer" style="margin:0">
+        <div class="viewer-screen" id="photoSlot">
+          <!-- Your photo goes here: set PHOTO_SRC in the settings at the bottom of the file. -->
+          <div class="photo-placeholder">
+            <div>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>
+              Your photo here
+            </div>
+          </div>
+        </div>
+        <figcaption class="viewer-bar">
+          <span class="rec">Omar, video editor</span>
+          <span id="viewerTc">00:00:00:00</span>
+        </figcaption>
+      </figure>
+    </div>
+
+    <div class="edit" aria-hidden="true">
+      <div class="edit-head"><span>Timeline: your next video</span><span>25 fps</span></div>
+      <div class="tracks">
+        <div class="track"><span class="track-name">V2</span><div class="lane">
+          <div class="clip c2" style="left:8%;width:14%;animation-delay:.55s">Title</div>
+          <div class="clip c2" style="left:46%;width:12%;animation-delay:.75s">Map anim</div>
+          <div class="clip c2" style="left:78%;width:10%;animation-delay:.9s">Lower third</div>
+        </div></div>
+        <div class="track"><span class="track-name">V1</span><div class="lane">
+          <div class="clip c1" style="left:0;width:24%;animation-delay:.35s">Hook</div>
+          <div class="clip c1" style="left:24.4%;width:30%;animation-delay:.45s">Archive B-roll</div>
+          <div class="clip c1" style="left:54.8%;width:22%;animation-delay:.55s">Story</div>
+          <div class="clip c1" style="left:77.2%;width:22.8%;animation-delay:.65s">Payoff</div>
+        </div></div>
+        <div class="track"><span class="track-name">A1</span><div class="lane">
+          <div class="clip c3 wave" style="left:0;width:96%;animation-delay:.6s">Narration</div>
+        </div></div>
+        <div class="track"><span class="track-name">A2</span><div class="lane">
+          <div class="clip c4" style="left:4%;width:58%;animation-delay:.8s">Score</div>
+          <div class="clip c4" style="left:63%;width:8%;animation-delay:.95s">SFX</div>
+          <div class="clip c4" style="left:72%;width:28%;animation-delay:1s">Score</div>
+        </div></div>
+        <div class="playhead"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ABOUT ================= -->
+<section id="about" aria-labelledby="about-title">
+  <div class="wrap about-grid">
+    <h2 id="about-title" class="reveal">Who’s behind the timeline</h2>
+    <div class="about-body reveal">
+      <p>I started on the other side of the camera. From 2018 to 2020 I co-ran a YouTube and TikTok channel, so I know what it takes to hold an audience from the first second.</p>
+      <p>Since 2020 I’ve edited YouTube, Instagram and TikTok videos for online creators, and spent three years as the social media video editor at Dikasa, a furniture company. I love history and science, and I write documentary scripts myself, so I edit with the story in mind, not just the cuts.</p>
+      <dl class="facts">
+        <div class="fact"><dt>Based in</dt><dd>Italy</dd></div>
+        <div class="fact"><dt>Languages</dt><dd>English (fluent), Italian and Arabic (native), some Spanish and French</dd></div>
+        <div class="fact"><dt>Main software</dt><dd>DaVinci Resolve, used daily for years</dd></div>
+        <div class="fact"><dt>Favorite genre</dt><dd>History and science documentaries</dd></div>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<!-- ================= WORK ================= -->
+<section id="work" class="work" aria-labelledby="work-title">
+  <div class="wrap">
+    <div class="section-head">
+      <h2 id="work-title" class="reveal">Selected work</h2>
+      <p class="reveal">Click any video to watch it, if the video doesen't open click on the youtube redirect.</p>
+    </div>
+
+    <div class="work-group">
+      <h3 class="reveal">Documentaries and long-form</h3>
+      <p class="sub reveal">Storytelling, B-roll, pacing, motion graphics and sound design.</p>
+      <div class="grid-long stagger" id="gridLong"></div>
+    </div>
+
+    <div class="work-group">
+      <h3 class="reveal">Short-form</h3>
+      <p class="sub reveal">Shorts, Reels and TikToks built for retention.</p>
+      <div class="grid-short stagger" id="gridShort"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SERVICES ================= -->
+<section id="services" aria-labelledby="services-title">
+  <div class="wrap">
+    <div class="section-head">
+      <h2 id="services-title" class="reveal">What I can do for you</h2>
+      <p class="reveal">From a single Short to a full documentary, script to final export.</p>
+    </div>
+
+    <div class="services-list stagger">
+      <div class="service reveal">
+        <div class="service-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9l5 3-5 3z"/></svg></div>
+        <div><h3>Documentary and YouTube editing</h3><p>Story structure, B-roll selection, pacing, motion graphics, text animation and sound design, cut to keep viewers watching.</p></div>
+      </div>
+      <div class="service reveal">
+        <div class="service-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg></div>
+        <div><h3>Short-form content</h3><p>Shorts, Reels and TikToks with captions, punchy hooks and fast turnaround.</p></div>
+      </div>
+      <div class="service reveal">
+        <div class="service-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v18M7 8v8M17 6v12M2 11v2M22 10v4"/></svg></div>
+        <div><h3>AI narration and sound</h3><p>Professional AI voiceovers with ElevenLabs, sound effects, music and a clean final mix in Fairlight.</p></div>
+      </div>
+      <div class="service reveal">
+        <div class="service-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor"/></svg></div>
+        <div><h3>Color and finishing</h3><p>Color correction and grading, subtitles and exports ready for every platform.</p></div>
+      </div>
+      <div class="service reveal">
+        <div class="service-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5h16v11H8l-4 4z"/></svg></div>
+        <div><h3>One-to-one consultations</h3><p>30 or 60 minute sessions on AI voice and audio, AI video generation, sound effects, subtitles and video editing.</p></div>
+      </div>
+      <div class="service reveal">
+        <div class="service-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 8h14l-1.5 12h-11z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg></div>
+        <div><h3>Shopify store setup</h3><p>Building and setting up Shopify stores, backed by two years as a webmaster and web developer.</p></div>
+      </div>
+    </div>
+
+    <div class="guarantee reveal">
+      <div>
+        <h3>Short-form in 24 hours, or you don’t pay.</h3>
+        <p>Applies to Shorts, Reels and TikToks. Long-form projects are scheduled with you.</p>
+      </div>
+      <div class="rate"><strong>$18</strong><span>per hour</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TOOLKIT ================= -->
+<section id="toolkit" aria-labelledby="tools-title" style="padding-top:0">
+  <div class="wrap">
+    <div class="section-head">
+      <h2 id="tools-title" class="reveal">My toolkit</h2>
+      <p class="reveal"></p>
+    </div>
+    <div class="tools">
+      <div class="reveal">
+        <h3>DaVinci Resolve</h3>
+        <div class="resolve-pages">
+          <div class="page"><strong>Edit and Cut</strong><span>Story, pacing, structure</span></div>
+          <div class="page"><strong>Color</strong><span>Correction and grading</span></div>
+          <div class="page"><strong>Fusion</strong><span>Motion graphics and VFX</span></div>
+          <div class="page"><strong>Fairlight</strong><span>Audio mix and sound design</span></div>
+          <div class="page"><strong>Subtitles</strong><span>Captions for every platform</span></div>
+          <div class="page"><strong>Deliver</strong><span>Presets and fast exports</span></div>
+        </div>
+      </div>
+      <div class="reveal">
+        <h3>Alongside Resolve</h3>
+        <div class="chips">
+          <span class="chip">After Effects</span>
+          <span class="chip">Photoshop</span>
+          <span class="chip">Illustrator</span>
+          <span class="chip">ElevenLabs</span>
+          <span class="chip">AI video tools</span>
+          <span class="chip">Stock footage libraries</span>
+          <span class="chip">Music libraries</span>
+          <span class="chip">Shopify</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= EXPERIENCE ================= -->
+<section id="experience" class="work" aria-labelledby="exp-title">
+  <div class="wrap">
+    <div class="section-head">
+      <h2 id="exp-title" class="reveal">Experience</h2>
+      <p class="reveal">Eight years making content, on camera and in the edit.</p>
+    </div>
+
+    <div class="exp" id="exp">
+      <div class="exp-fill" id="expFill"></div>
+      <div class="role reveal">
+        <span class="role-years">2018 to 2020</span>
+        <h3>YouTube and TikTok creator</h3>
+        <p>Co-ran a channel with gaming, vlogs, commentary and challenges. Learned what makes an audience stay.</p>
+      </div>
+      <div class="role reveal">
+        <span class="role-years">2020 to today</span>
+        <h3>Freelance video editor</h3>
+        <p>Editing YouTube, Instagram and TikTok content for online creators, including faceless documentaries on the rotary engine, World War I and National Semiconductor.</p>
+      </div>
+      <div class="role reveal">
+        <span class="role-years">2022 to 2025</span>
+        <h3>Social media video editor at Dikasa</h3>
+        <p>Produced social video content for a furniture company across platforms.</p>
+      </div>
+    </div>
+
+    <div class="also stagger">
+      <div class="also-item reveal">
+        <span class="len">2 years</span>
+        <h3>Social media manager</h3>
+        <p>Managed a company’s social channels, so I edit with the strategy and the algorithm in mind.</p>
+      </div>
+      <div class="also-item reveal">
+        <span class="len">2 years</span>
+        <h3>Webmaster and web developer</h3>
+        <p>Built and maintained websites, the base for my Shopify store work.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CONTACT ================= -->
+<section class="contact" id="contact" aria-labelledby="contact-title">
+  <div class="wrap">
+    <h2 id="contact-title" class="reveal">Got footage? Let’s make it a story.</h2>
+    <p class="reveal">Send me your project on Upwork and I’ll reply with how I’d edit it.</p>
+    <a class="btn reveal upwork-link" href="#" target="_blank" rel="noopener">Message me on Upwork</a>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Omar’s Editing Experience</span>
+    <span>Video editing for creators, since 2020</span>
+  </div>
+</footer>
+
+<!-- ================= POP-UP PLAYER ================= -->
+<dialog class="player" id="player" aria-labelledby="playerTitle">
+  <div class="player-frame" id="playerFrame"></div>
+  <div class="player-bar">
+    <div><h4 id="playerTitle"></h4><p id="playerRole"></p></div>
+    <div class="player-actions">
+      <a class="icon-btn" id="playerYt" href="#" target="_blank" rel="noopener" aria-label="Open on YouTube">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 4h6v6M20 4l-9 9M18 14v6H4V6h6"/></svg>
+      </a>
+      <button class="icon-btn" id="playerClose" aria-label="Close video">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+  </div>
+</dialog>
+
+<script>
+/* =================================================================
+   SETTINGS: fill these in. That's all you need to edit.
+   ================================================================= */
+
+// Your Upwork profile link (used by every "Hire me" button)
+const UPWORK_URL = "https://www.upwork.com/freelancers/~0105b5c48d1c8ec6a8?mp_source=share";
+
+// Your photo: a file next to this page ("omar.jpg") or a full image URL
+const PHOTO_SRC = "https://i.postimg.cc/wTJ9JJQc/Gemini-Generated-Image-y6p1zmy6p1zmy6p1.jpg";
+
+// Long-form videos. Paste any YouTube link in "url"
+// (youtube.com/watch?v=..., youtu.be/..., or youtube.com/embed/...).
+// "duration" is optional, e.g. "14:32". Add or remove entries freely.
+const LONG_FORM = [
+  { title: "The History of the Rotary Engine", role: "Storytelling, B-roll, motion graphics, sound design", url: "https://www.youtube.com/watch?v=5e9YjxMsvuc", duration: "" },
+  { title: "World War I", role: "Script, AI narration, archive footage, edit", url: "https://www.youtube.com/watch?v=5e9YjxMsvuc", duration: "" },
+  { title: "The Rise and Fall of National Semiconductor", role: "Script, AI narration, motion graphics, edit", url: "https://www.youtube.com/watch?v=BkkT7iAVDlM", duration: "" },
+  { title: "The Minecraft Horror Iceberg - Story Telling & Motion Graphics", role: "What you did on this video", url: "https://www.youtube.com/watch?v=KySMLhQpDEU", duration: "" },
+ 
+];
+
+// Short-form videos (YouTube Shorts links work: youtube.com/shorts/...)
+const SHORT_FORM = [
+  { title: "Talking head video edit for Tiktok - IG - SHORTS", url: "https://youtube.com/shorts/E-zyOMzeP9c" },
+  { title: "Talking head video edit example for Tiktok - IG - SHORTS", url: "https://youtube.com/shorts/YVQPyArVJ-w" },
+  { title: "Talking head video edit for Tiktok - IG - SHORTS", url: "https://youtube.com/shorts/rNcL86M7Pak" },
+ 
+];
+
+/* ================================================================= */
+
+const FPS = 25;
+const PAGE_RUNTIME_SECONDS = 4 * 60 + 32; // the page "plays" like a 4:32 edit
+
+function ytId(url) {
+  if (!url) return null;
+  const m = url.match(/(?:youtu\.be\/|v=|\/embed\/|\/shorts\/|\/live\/)([A-Za-z0-9_-]{11})/);
+  return m ? m[1] : null;
+}
+function tc(seconds) {
+  const totalFrames = Math.floor(seconds * FPS);
+  const f = totalFrames % FPS, s = Math.floor(totalFrames / FPS);
+  const pad = n => String(n).padStart(2, "0");
+  return `${pad(Math.floor(s / 3600))}:${pad(Math.floor(s / 60) % 60)}:${pad(s % 60)}:${pad(f)}`;
+}
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+const playIcon = `<span class="play"><svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z"/></svg></span>`;
+
+function tile(v, vertical) {
+  const id = ytId(v.url);
+  const thumb = id
+    ? `<img src="https://i.ytimg.com/vi/${id}/hqdefault.jpg" alt="" loading="lazy">`
+    : `<div class="thumb-empty">Video coming soon</div>`;
+  const dur = v.duration ? `<span class="duration">${esc(v.duration)}</span>` : "";
+  const meta = vertical
+    ? `<div class="tile-meta"><h4>${esc(v.title)}</h4></div>`
+    : `<div class="tile-meta"><h4>${esc(v.title)}</h4><p>${esc(v.role || "")}</p></div>`;
+  const btn = document.createElement("button");
+  btn.className = "tile reveal";
+  btn.setAttribute("aria-label", `Play ${v.title}`);
+  btn.innerHTML = `<div class="thumb">${thumb}${playIcon}${dur}</div>${meta}`;
+  btn.addEventListener("click", () => openPlayer(v, vertical));
+  return btn;
+}
+
+const gridLong = document.getElementById("gridLong");
+const gridShort = document.getElementById("gridShort");
+LONG_FORM.forEach(v => gridLong.appendChild(tile(v, false)));
+SHORT_FORM.forEach(v => gridShort.appendChild(tile(v, true)));
+
+/* Upwork links and photo */
+document.querySelectorAll(".upwork-link").forEach(a => {
+  if (UPWORK_URL) a.href = UPWORK_URL;
+  else { a.removeAttribute("target"); a.href = "#contact"; }
+});
+if (PHOTO_SRC) {
+  const slot = document.getElementById("photoSlot");
+  slot.innerHTML = `<img src="${esc(PHOTO_SRC)}" alt="Omar, video editor">`;
+}
+
+/* Pop-up player */
+const dlg = document.getElementById("player");
+const frame = document.getElementById("playerFrame");
+const ytLink = document.getElementById("playerYt");
+let lastFocus = null;
+
+function openPlayer(v, vertical) {
+  lastFocus = document.activeElement;
+  const id = ytId(v.url);
+  dlg.classList.toggle("vertical", !!vertical);
+  document.getElementById("playerTitle").textContent = v.title;
+  document.getElementById("playerRole").textContent = v.role || "";
+  if (id) {
+    frame.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0" title="${esc(v.title)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
+    ytLink.href = v.url; ytLink.style.display = "";
+  } else {
+    frame.innerHTML = `<div class="player-empty">This video will be available soon.</div>`;
+    ytLink.style.display = "none";
+  }
+  dlg.showModal();
+}
+function closePlayer() { dlg.close(); }
+dlg.addEventListener("close", () => { frame.innerHTML = ""; if (lastFocus) lastFocus.focus(); });
+document.getElementById("playerClose").addEventListener("click", closePlayer);
+dlg.addEventListener("click", e => { if (e.target === dlg) closePlayer(); });
+
+/* Scroll reveal */
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+}, { threshold: 0.15, rootMargin: "0px 0px -40px 0px" });
+document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+
+/* Scroll timecode, ruler and experience line */
+const tcEl = document.getElementById("timecode");
+const viewerTc = document.getElementById("viewerTc");
+const fill = document.getElementById("rulerFill");
+const head = document.getElementById("rulerHead");
+const exp = document.getElementById("exp");
+const expFill = document.getElementById("expFill");
+let ticking = false;
+
+function onScroll() {
+  const max = document.documentElement.scrollHeight - innerHeight;
+  const p = max > 0 ? Math.min(1, Math.max(0, scrollY / max)) : 0;
+  const t = tc(p * PAGE_RUNTIME_SECONDS);
+  tcEl.textContent = t; viewerTc.textContent = t;
+  fill.style.width = (p * 100) + "%";
+  head.style.left = (p * 100) + "%";
+  const r = exp.getBoundingClientRect();
+  const ep = Math.min(1, Math.max(0, (innerHeight * 0.7 - r.top) / r.height));
+  expFill.style.height = (ep * 100) + "%";
+  ticking = false;
+}
+addEventListener("scroll", () => { if (!ticking) { requestAnimationFrame(onScroll); ticking = true; } }, { passive: true });
+addEventListener("resize", onScroll);
+onScroll();
+</script>
+</body>
+</html>
